@@ -1,0 +1,1 @@
+while 1:1 # 9**9**9 is also a valid solution
