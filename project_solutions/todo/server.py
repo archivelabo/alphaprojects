@@ -23,44 +23,34 @@ def tasks_list():
 {% for task in tasks %}
     <li>
         {% if task.done == '1' %} <strike> {% endif %}{{ task.text }} {% if task.done == '1'%} </strike>{% endif %}
-        <a href="#" onclick="goto('/done/'+ '{{ task.text }}')">X</a>
-        <a href="#" onclick="goto('/delete/' + '{{ task.text }}')">Delete</a>
+        <a href="{{ 'done/' + task.text }}">X</a>
+        <a href="{{ 'delete/' + task.text }}">Delete</a>
     </li>
 {% endfor %}
 </ul>
 
 
-<form method="post" onsubmit="get_action(this);">
+<form method="post" action='task'">
     <p><input type="text" name="content" required></p>
     <input type="submit" value="Add task">
 </form>
-
-<script>
-
-    function get_action(form) {
-        form.action = window.location.pathname + "/task" + window.location.pathname;
-     }
-function goto(url){window.location.href=window.location.href.substr(0, window.location.href.lastIndexOf("0") + 1) + '/' + url + '/' + window.location.pathname}
-
-</script>"""
+"""
     return render_template_string(html, tasks=tasks)
 
 
-@app.route('/task/<string:path>', methods=['POST'])
-def add_task(path):
+@app.route('/task', methods=['POST'])
+def add_task():
     content = request.form['content']
     if not content:
         return 'Error'
     task = Task(content, 0)
     db = open('db.csv', 'a')
     db.write(task.text + "," + str(task.done) + "\n")
-    print(request.url.replace("http", "https")[31:])
-    print(path)
-    return redirect(request.url.replace("http", "https").replace("task/", ""))
+    return redirect('/')
 
 
-@app.route('/delete/<string:content>/<string:path>')
-def delete_task(content, path):
+@app.route('/delete/<string:content>')
+def delete_task(content):
     db = open('db.csv', 'r')
     db_new = open('db_new.csv', 'w')
     for row in db:
@@ -69,11 +59,11 @@ def delete_task(content, path):
 
     os.remove('db.csv')
     os.rename('db_new.csv', 'db.csv')
-    return redirect(re.sub(r"delete/(.+)/", "", request.url.replace("http", "https")))
+    return redirect('/')
 
 
-@app.route('/done/<string:content>/<string:path>')
-def resolve_task(content, path):
+@app.route('/done/<string:content>')
+def resolve_task(content):
     db = open('db.csv', 'r')
     db_new = open('db_new.csv', 'w')
     for row in db:
@@ -87,7 +77,7 @@ def resolve_task(content, path):
 
     os.remove('db.csv')
     os.rename('db_new.csv', 'db.csv')
-    return redirect(re.sub(r"done/(.+)/", "", request.url.replace("http", "https")))
+    return redirect('/')
 
 
 if __name__ == '__main__':
