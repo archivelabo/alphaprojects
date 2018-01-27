@@ -12,9 +12,5 @@ for word in text:
   if inDictionary(word):
     print(dictionary[word], end=" ")
   else:
-
-
-
-
     print(word, end=" ")
     addToDictionary(word)
